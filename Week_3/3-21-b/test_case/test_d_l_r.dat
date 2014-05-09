@@ -1,0 +1,652 @@
+#include "stu_infor.h"
+void system_init(const char* config_file_name, pUSR_ACCOUNT  *pUsr_Acount, pUSR_INFOR *pUsr_Infor, USR_ACCOUNT_NUM* usr_account_num, USR_INFOR_NUM* usr_infor_num)
+{
+	FILE * fp_config_file, *fp_usr_account_file, *fp_usr_infor_file ;
+
+	pUSR_ACCOUNT pUsr_Account_Cur,pUsr_Account_Tail;
+	pUSR_INFOR pUsr_Infor_Cur,pUsr_Infor_Tail;
+
+	char line_of_file[MAX_FILE_LINE],file_name[MAX_FILE_LINE],file_name_key[MAX_FILE_LINE] ;
+	*usr_account_num = 0 ;
+	*usr_infor_num = 0 ;
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	memset(file_name,0,MAX_FILE_LINE);
+	memset(file_name_key,0,MAX_FILE_LINE);
+
+	fp_config_file = fopen(config_file_name, "rb");
+
+	fgets(line_of_file,MAX_FILE_LINE,fp_config_file);
+	sscanf(line_of_file ,"%s%s",file_name_key, file_name);
+
+	if((fp_usr_account_file = fopen(file_name,"rb")) == NULL)
+	{
+		printf(file_name);
+		fclose(fp_config_file);
+		return  ;
+	}
+
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	memset(file_name,0,MAX_FILE_LINE);
+	memset(file_name_key,0,MAX_FILE_LINE);
+
+	fgets(line_of_file, MAX_FILE_LINE, fp_config_file);
+	sscanf(line_of_file ,"%s%s",file_name_key, file_name);
+
+
+	if( (fp_usr_infor_file = fopen(file_name,"rb"))==NULL )
+	{
+		perror(file_name);
+		fclose(fp_config_file);
+		fclose(fp_usr_account_file);
+		return  ;
+	}
+
+	//read from usr_account.txt 
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	while(fgets(line_of_file, MAX_FILE_LINE, fp_usr_account_file) != NULL)
+	{
+		(*usr_account_num) ++ ;
+		pUsr_Account_Cur = (pUSR_ACCOUNT)malloc(sizeof(USR_ACCOUNT));
+		memset(pUsr_Account_Cur, 0, sizeof(USR_ACCOUNT));
+		sscanf(line_of_file,"%s%s%d",pUsr_Account_Cur->usr_name,pUsr_Account_Cur->usr_pwd,&(pUsr_Account_Cur->usr_role));
+		if(*usr_account_num == 1)
+		{
+			*pUsr_Acount = pUsr_Account_Cur ;
+		}else
+		{
+			pUsr_Account_Tail ->pNext_Usr_Account = pUsr_Account_Cur ;
+		}
+		pUsr_Account_Tail = pUsr_Account_Cur ;
+	}
+
+	//read usr_infor
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	while( (fgets(line_of_file, MAX_FILE_LINE, fp_usr_infor_file)) != NULL)
+	{
+		(*usr_infor_num) ++;
+		pUsr_Infor_Cur = (pUSR_INFOR)malloc(sizeof(USR_INFOR));
+		memset(pUsr_Infor_Cur, 0, sizeof(USR_INFOR) );
+		sscanf(line_of_file,"%d%s%d%lf",&(pUsr_Infor_Cur->usr_id), pUsr_Infor_Cur ->usr_name,&(pUsr_Infor_Cur ->usr_course_id),&(pUsr_Infor_Cur ->usr_course_score));
+		if((*usr_infor_num) == 1)
+		{
+			*pUsr_Infor = pUsr_Infor_Cur ;
+		}else 
+		{
+			pUsr_Infor_Tail ->pNext_Usr_Infor = pUsr_Infor_Cur ;
+		}
+		pUsr_Infor_Tail = pUsr_Infor_Cur ;
+	}
+	fclose(fp_config_file);
+	fclose(fp_usr_account_file);
+	fclose(fp_usr_infor_file);
+}
+static USR_ROLE in_usr_list(pUSR_ACCOUNT pUsr_Account_List, const char* usr_name, const char* usr_pwd )
+{
+	pUSR_ACCOUNT pUsr_Account_Cur = pUsr_Account_List ;
+	while(pUsr_Account_Cur)
+	{
+		if(strcmp(pUsr_Account_Cur->usr_name,usr_name)==0 && strcmp(pUsr_Account_Cur->usr_pwd,usr_pwd)==0 )
+		{
+			return pUsr_Account_Cur->usr_role ;
+		}
+		pUsr_Account_Cur = pUsr_Account_Cur->pNext_Usr_Account;
+	}
+
+	return -1 ;
+}
+USR_ROLE role_confirm(pUSR_ACCOUNT pUsr_Account,USR_ACCOUNT_NUM usr_account_num) 
+{
+	char usr_name[USR_NAME_LEN] ;
+	char usr_pswd[USR_PWD_LEN] ;
+	int i = 0,ch ;
+	USR_ROLE role ;
+	printf("enter usr_name:");
+	scanf("%s" ,usr_name);
+
+	getchar();
+	while(system("cls"),printf("enter usr_password:"))
+	{
+		i = 0 ;
+		while((ch = getch()) != '#')
+		{
+			if(ch != 8)
+			{
+				if(i < USR_PWD_LEN - 1 )
+				{
+					usr_pswd[i] = ch ;
+					putchar('*');
+					i ++ ;
+				}
+				else 
+				{
+
+					putchar(32);
+					putchar(8);
+				}
+
+			}else 
+			{
+				if(i - 1 >= 0)
+				{
+					putchar(8);
+					putchar(32);
+					putchar(8);
+					i -- ;
+				}else 
+				{
+					putchar(7);
+				}
+			}
+
+		}
+		if(i > 0)
+		{
+			break;
+		}
+
+	}
+	usr_pswd[i] = '\0';
+	role = in_usr_list(pUsr_Account,usr_name, usr_pswd);
+	return role ;
+}
+SYSTEM_MENU_TYPE show_system_menu(USR_ROLE role)
+{
+	SYSTEM_MENU_TYPE select ;
+	system("cls");
+	printf("******************************************************************************************\n");
+	printf("***************Student	Information	Management	System****************************\n");
+	printf("******************************************************************************************\n\n");
+	if(role == 2)
+	{
+		printf("           1.search	student	information							\n");
+	}else if(role == 1)
+	{
+		printf("			1.search	student information										\n");
+		printf("			2.add	student	information											\n");
+		printf("			3.update student information										\n");
+		printf("			4.delete student	information										\n");
+		printf("			5.add  	user	account          								\n");
+		printf("			6.update	user	account          								\n");
+		printf("			7.delete	user	account          								\n");
+		printf("			8.search	user	account          								\n");
+	}
+	printf("			9.exit															\n");
+	printf("select a number:");
+	
+	while(fflush(stdin),(select = getch()) != EOF)
+	{
+		if(role == 2)
+		{
+			if(select == '1' || select == '9')
+			{
+				putchar(select);
+				fflush(stdin);
+				break ;
+			}
+			putchar(8);
+			putchar(32);
+		}else 
+		{
+			if(select >= '1' && select <= '9')
+			{
+				putchar(select);
+				fflush(stdin);
+				break ;
+			}
+			putchar(32);
+			putchar(8);
+			
+		}
+	}
+	if(select != EOF)
+	{
+		return (select - '0') ;
+	}else 
+	{
+		return 0 ;
+	}
+	
+}
+SYSTEM_MENU_TYPE show_search_menu(USR_ROLE role)
+{
+	int ch = '3' ;
+	system("cls") ;
+	fflush(stdout);
+	if(role == 1)
+	{
+	printf("0. search all\n");
+	}
+	printf("1. search by name\n");
+	printf("2. search by id\n");
+	printf("3. return   \n");
+	while(fflush(stdin),(ch = getch()) != EOF)
+	{
+		if(ch == '1' || ch == '2' || ch == '3' || (role == 1 && ch == '0'))
+		{
+			
+			break ;
+		}else 
+		{
+			putchar(32);
+			putchar(8);
+		}
+	}
+	return (ch - '0');
+
+}
+void search_usr_infor_by_id(pUSR_INFOR pUsr_Infor_List,  SEARCH_ID search_id)
+{
+	pUSR_INFOR pUsr_Infor_Cur = pUsr_Infor_List;
+	printf("\n\nusr_id\t\t\tusr_name\t\t\tcourse_id\t\t\tcourse_score\n");
+	while(pUsr_Infor_Cur)
+	{
+		if(search_id == 0 || pUsr_Infor_Cur ->usr_id == search_id)
+		{
+			printf("%d\t\t\t%s\t\t\t%d\t\t\t%f\n",pUsr_Infor_Cur ->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score);
+		}
+		pUsr_Infor_Cur = pUsr_Infor_Cur ->pNext_Usr_Infor ;
+	}
+}
+void search_usr_infor_by_name(pUSR_INFOR pUsr_Infor_List, char* search_name)
+{
+	pUSR_INFOR pUsr_Infor_Cur = pUsr_Infor_List;
+	printf("usr_id\t\t\tusr_name\t\t\tcourse_id\t\t\tcourse_score\n");
+	while(pUsr_Infor_Cur)
+	{
+		if(strcmp(pUsr_Infor_Cur ->usr_name , search_name) == 0)
+		{
+			printf("%d\t\t\t%s\t\t\t%d\t\t\t%f\n",pUsr_Infor_Cur ->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score);
+		}
+		pUsr_Infor_Cur = pUsr_Infor_Cur ->pNext_Usr_Infor ;
+	}
+}
+pUSR_INFOR add_usr_infor(pUSR_INFOR *ppUsr_Infor_List, USR_INFOR_NUM *usr_infor_num)
+{
+	pUSR_INFOR pUsr_Infor_Cur,pUsr_Infor_Pre,pUsr_Infor_Work ;
+	pUsr_Infor_Pre = NULL ;
+	pUsr_Infor_Work = *ppUsr_Infor_List;
+
+	pUsr_Infor_Cur = (pUSR_INFOR)malloc(sizeof(USR_INFOR));
+	memset(pUsr_Infor_Cur, 0, sizeof(USR_INFOR));
+	
+	printf("\nusr_id: ");
+	fflush(stdout);
+	fflush(stdin);
+	if(scanf("%d",&(pUsr_Infor_Cur ->usr_id) ) !=1)
+	{
+		printf("usr_id illegal !\n");
+		fflush(stdout);
+		fflush(stdin);
+		return NULL ;
+	}
+	
+	printf("usr_name: ");
+	fflush(stdout);
+	fflush(stdin);
+	scanf("%s",pUsr_Infor_Cur ->usr_name);
+
+	printf("course_id: ");
+	fflush(stdout);
+	fflush(stdin);
+	if(scanf("%d",&(pUsr_Infor_Cur ->usr_course_id)) != 1)
+	{
+		printf("usr_course_id illegal !\n");
+		fflush(stdout);
+		fflush(stdin);
+		return NULL ;
+	}
+
+	printf("course_score: ");
+	fflush(stdout);
+	fflush(stdin);
+	if(scanf("%lf",&(pUsr_Infor_Cur ->usr_course_score)) != 1)
+	{
+		printf("usr_course_score illegal !\n");
+		fflush(stdout);
+		fflush(stdin);
+		return NULL ;
+	}
+
+	while(pUsr_Infor_Work)
+	{
+		if(pUsr_Infor_Work ->usr_id > pUsr_Infor_Cur ->usr_id )
+		{
+			break ;	
+		}else if(pUsr_Infor_Work ->usr_id == pUsr_Infor_Cur ->usr_id || strcmp(pUsr_Infor_Work ->usr_name,pUsr_Infor_Cur ->usr_name) == 0  )
+		{
+			printf("\nthe infornmation already exist !\n");
+			return  NULL;
+		}
+		pUsr_Infor_Pre = pUsr_Infor_Work ;
+		pUsr_Infor_Work = pUsr_Infor_Work ->pNext_Usr_Infor ;
+	}
+	if(pUsr_Infor_Pre == NULL)
+	{
+		(*usr_infor_num) ++ ;
+		pUsr_Infor_Cur ->pNext_Usr_Infor = *ppUsr_Infor_List ;
+		*ppUsr_Infor_List = pUsr_Infor_Cur ;
+	}
+	else
+	{
+		(*usr_infor_num) ++ ;
+		pUsr_Infor_Cur ->pNext_Usr_Infor = pUsr_Infor_Pre ->pNext_Usr_Infor ;
+		pUsr_Infor_Pre ->pNext_Usr_Infor = pUsr_Infor_Cur ;
+	}
+	printf("add infor : \n");
+	printf("%d\t%s\t%d\t%f \n",pUsr_Infor_Cur->usr_id,pUsr_Infor_Cur->usr_name,pUsr_Infor_Cur->usr_course_id,pUsr_Infor_Cur->usr_course_score);
+	return pUsr_Infor_Cur ;
+	
+}
+pUSR_INFOR update_usr_infor(pUSR_INFOR pUsr_Infor_List,SEARCH_ID search_id)
+{
+	pUSR_INFOR pUsr_Infor_Cur = pUsr_Infor_List ;
+	while(pUsr_Infor_Cur)
+	{
+		if(pUsr_Infor_Cur ->usr_id == search_id)
+		{
+			break ;
+		}
+		pUsr_Infor_Cur = pUsr_Infor_Cur ->pNext_Usr_Infor;
+	}
+	if(pUsr_Infor_Cur)
+	{
+		printf("%d\t\t%s\t\t\t%d\t\t\t%f\n",pUsr_Infor_Cur->usr_id,pUsr_Infor_Cur->usr_name,pUsr_Infor_Cur->usr_course_id,pUsr_Infor_Cur->usr_course_score);
+		printf("\n usr_name :") ;
+		fflush(stdin);
+		scanf("%s", pUsr_Infor_Cur->usr_name);
+
+		printf("\n course_id :") ;
+		fflush(stdin);
+		scanf("%d", &(pUsr_Infor_Cur->usr_course_id));
+		printf("\n course_score :") ;
+
+		fflush(stdin);
+		scanf("%lf", &(pUsr_Infor_Cur->usr_course_score) );
+
+		fflush(stdout);
+		printf("%d\t\t%s\t\t\t%d\t\t\t%f\n",pUsr_Infor_Cur->usr_id,pUsr_Infor_Cur->usr_name,pUsr_Infor_Cur->usr_course_id,pUsr_Infor_Cur->usr_course_score);
+		return pUsr_Infor_Cur ;
+	}
+	else 
+	{
+		printf("\n not exist ! \n");
+		fflush(stdout);
+		return NULL ;
+	}
+}
+pUSR_INFOR delete_usr_infor(pUSR_INFOR *ppUsr_Infor_List, USR_INFOR_NUM * usr_infor_num,SEARCH_ID search_id)
+{
+	pUSR_INFOR pUsr_Infor_Cur = *ppUsr_Infor_List, pUsr_Infor_Pre;
+	pUsr_Infor_Pre = NULL ;
+	while(pUsr_Infor_Cur)
+	{
+		if(pUsr_Infor_Cur ->usr_id == search_id)
+		{
+			break ;
+		}
+		pUsr_Infor_Pre = pUsr_Infor_Cur ;
+		pUsr_Infor_Cur = pUsr_Infor_Cur ->pNext_Usr_Infor;
+	}
+	if(pUsr_Infor_Pre == NULL && pUsr_Infor_Cur)
+	{
+		*ppUsr_Infor_List = pUsr_Infor_Cur ->pNext_Usr_Infor ;
+		printf("delete infor : \n");
+		printf("%d\t%s\t%d\t%f \n",pUsr_Infor_Cur->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score);
+
+		free(pUsr_Infor_Cur);
+		(*usr_infor_num) -- ;
+		
+		fflush(stdout);
+		return *ppUsr_Infor_List;
+	}
+	else if(pUsr_Infor_Cur)
+	{
+		pUsr_Infor_Pre ->pNext_Usr_Infor = pUsr_Infor_Cur ->pNext_Usr_Infor ;
+		printf("delete infor : \n");
+		printf("%d\t%s\t%d\t%f \n",pUsr_Infor_Cur->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score);
+
+		free(pUsr_Infor_Cur);
+		(*usr_infor_num) -- ;
+		
+		fflush(stdout);
+		return pUsr_Infor_Pre ->pNext_Usr_Infor ;
+	}
+	printf("\nFailure\n");
+	fflush(stdout);
+	return NULL ;
+}
+void search_usr_account(pUSR_ACCOUNT pUsr_Account_List, char* search_name)
+{
+	pUSR_ACCOUNT pUsr_Account_Cur = pUsr_Account_List ;
+	while(pUsr_Account_Cur)
+	{
+		if(search_name == NULL ||strcmp(pUsr_Account_Cur->usr_name, search_name) == 0)
+		{
+			printf("\n%s\t\t%s\t\t%d\n", pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur ->usr_role);
+		}
+		pUsr_Account_Cur = pUsr_Account_Cur ->pNext_Usr_Account;
+	}
+	if(pUsr_Account_Cur != NULL)
+	{
+		printf("\n not exist ! \n");
+	}
+	return  ;
+
+}
+pUSR_ACCOUNT add_usr_account(pUSR_ACCOUNT* ppUsr_Account_List,  USR_ACCOUNT_NUM* usr_account_num )
+{
+	pUSR_ACCOUNT pUsr_Account_Cur, pUsr_Account_Pre, pUsr_Account_Work;
+	pUsr_Account_Cur = (pUSR_ACCOUNT)malloc(sizeof(USR_ACCOUNT));
+	memset(pUsr_Account_Cur, 0, sizeof(USR_ACCOUNT));
+	pUsr_Account_Cur ->usr_role = 2 ;
+
+	printf("enter usr_account: ");
+	fflush(stdin);
+	if(scanf("%s",pUsr_Account_Cur ->usr_name ) != 1)
+	{
+		fflush(stdin);
+		printf("\n Usr_Account illegal input  ! \n");
+		return NULL;
+	}
+	fflush(stdin);
+	printf("enter account_pwd: ");
+	if(scanf("%s",pUsr_Account_Cur ->usr_pwd) != 1)
+	{
+		fflush(stdin);
+		printf("\n Usr_Pwd illegal input ! \n");
+		return NULL;
+	}
+
+	pUsr_Account_Work = *ppUsr_Account_List ;
+	pUsr_Account_Pre = NULL;
+	while(pUsr_Account_Work)
+	{
+		if(strcmp(pUsr_Account_Work ->usr_name, pUsr_Account_Cur->usr_name) == 0 )
+		{
+			printf(" \n usr_account already exist ! \n");
+			fflush(stdout);
+			return NULL ;
+		}else if(strcmp(pUsr_Account_Cur ->usr_name, pUsr_Account_Work ->usr_name) < 0 )
+		{
+			break ;
+		}
+		
+		pUsr_Account_Pre = pUsr_Account_Work ;
+		pUsr_Account_Work = pUsr_Account_Work ->pNext_Usr_Account ;
+	}
+	if(pUsr_Account_Pre == NULL && pUsr_Account_Work != NULL)
+	{
+		pUsr_Account_Cur ->pNext_Usr_Account = *ppUsr_Account_List ;
+		*ppUsr_Account_List = pUsr_Account_Cur ;
+		(*usr_account_num)++;
+		printf("\n%s\t\t\t%s\t\t\t%d\n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd,pUsr_Account_Cur ->usr_role);
+		return pUsr_Account_Cur;
+	}else 
+	{
+		pUsr_Account_Cur ->pNext_Usr_Account = pUsr_Account_Pre->pNext_Usr_Account;
+		pUsr_Account_Pre ->pNext_Usr_Account = pUsr_Account_Cur;
+
+		printf("\n%s\t\t\t%s\t\t\t%d\n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd,pUsr_Account_Cur ->usr_role);
+		(*usr_account_num)++;
+		return pUsr_Account_Cur ;
+	}
+	return NULL ;
+}
+pUSR_ACCOUNT update_usr_account(pUSR_ACCOUNT pUsr_Account_List,char* search_name )
+{
+	pUSR_ACCOUNT pUsr_Account_Cur = pUsr_Account_List ;
+	while(pUsr_Account_Cur)
+	{
+		if(strcmp(pUsr_Account_Cur ->usr_name , search_name) == 0)
+		{
+			break ;
+		}
+		pUsr_Account_Cur = pUsr_Account_Cur ->pNext_Usr_Account;
+	}
+	if(pUsr_Account_Cur)
+	{
+		printf("%s\t\t%s\t\t\t%d\n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role);
+		
+		printf("\n usr_pwd :") ;
+		fflush(stdin);
+		scanf("%s", pUsr_Account_Cur ->usr_pwd);
+		printf("\n usr_role :") ;
+
+		fflush(stdin);
+		scanf("%d", &(pUsr_Account_Cur->usr_role) );
+
+		fflush(stdout);
+		printf("%s\t\t%s\t\t\t%d\n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role);
+		return pUsr_Account_Cur ;
+	}
+	else 
+	{
+		printf("\n not exist ! \n");
+		fflush(stdout);
+		return NULL ;
+	}
+}
+pUSR_ACCOUNT delete_usr_account(pUSR_ACCOUNT *ppUsr_Account_List,USR_ACCOUNT_NUM* usr_account_num,char* search_name )
+{
+
+	pUSR_ACCOUNT pUsr_Account_Cur = *ppUsr_Account_List, pUsr_Account_Pre;
+	pUsr_Account_Pre = NULL ;
+	while(pUsr_Account_Cur)
+	{
+		if( strcmp(pUsr_Account_Cur ->usr_name,search_name) == 0)
+		{
+			break ;
+		}
+		pUsr_Account_Pre = pUsr_Account_Cur ;
+		pUsr_Account_Cur = pUsr_Account_Cur ->pNext_Usr_Account;
+	}
+	if(pUsr_Account_Pre == NULL && pUsr_Account_Cur)
+	{
+		*ppUsr_Account_List = pUsr_Account_Cur ->pNext_Usr_Account ;
+		printf("delete account : \n");
+		printf("%s\t%s\t%d \n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role);
+
+		free(pUsr_Account_Cur);
+		(*usr_account_num) -- ;
+		
+		fflush(stdout);
+		return *ppUsr_Account_List;
+	}
+	else if(pUsr_Account_Cur)
+	{
+		pUsr_Account_Pre = pUsr_Account_Cur ->pNext_Usr_Account ;
+		printf("delete account : \n");
+		printf("%s\t%s\t%d \n",pUsr_Account_Cur->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role);
+
+		free(pUsr_Account_Cur);
+		(*usr_account_num) -- ;
+		
+		fflush(stdout);
+		return pUsr_Account_Pre ->pNext_Usr_Account ;
+	}
+	printf("\nFailure\n");
+	fflush(stdout);
+	return NULL ;
+}
+void save_data_to_file(char * config_file_name ,pUSR_ACCOUNT pUsr_Account_List,pUSR_INFOR pUsr_Infor_List )
+{
+	FILE * fp_config_file, *fp_usr_account_file, *fp_usr_infor_file ;
+
+	pUSR_ACCOUNT pUsr_Account_Cur,pUsr_Account_Tail;
+	pUSR_INFOR pUsr_Infor_Cur,pUsr_Infor_Tail;
+
+	char line_of_file[MAX_FILE_LINE],file_name[MAX_FILE_LINE],file_name_key[MAX_FILE_LINE] ;
+
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	memset(file_name,0,MAX_FILE_LINE);
+	memset(file_name_key,0,MAX_FILE_LINE);
+
+	fp_config_file = fopen(config_file_name, "rb");
+
+	fgets(line_of_file,MAX_FILE_LINE,fp_config_file);
+	sscanf(line_of_file , "%s%s", file_name_key, file_name);
+
+	if( (fp_usr_account_file = fopen(file_name,"wb"))==NULL )
+	{
+		perror(file_name);
+		fclose(fp_config_file);
+		return  ;
+	}
+    
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	memset(file_name,0,MAX_FILE_LINE);
+	memset(file_name_key,0,MAX_FILE_LINE);
+
+	fgets(line_of_file, MAX_FILE_LINE, fp_config_file);
+	sscanf(line_of_file ,"%s%s",file_name_key, file_name);
+
+
+	if( (fp_usr_infor_file = fopen(file_name,"wb")) == NULL )
+	{
+		perror(file_name);
+		fclose(fp_config_file);
+		fclose(fp_usr_account_file);
+		return  ;
+	}
+
+	pUsr_Account_Cur = pUsr_Account_List ;
+	pUsr_Account_Tail = pUsr_Account_List ->pNext_Usr_Account ;
+	while(pUsr_Account_Tail)
+	{
+		memset(line_of_file, 0, MAX_FILE_LINE);
+		sprintf(line_of_file, "%s\t%s\t%d\n",pUsr_Account_Cur ->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role );
+		fputs(line_of_file, fp_usr_account_file);
+		free(pUsr_Account_Cur);
+		pUsr_Account_Cur = pUsr_Account_Tail ;
+		pUsr_Account_Tail = pUsr_Account_Tail ->pNext_Usr_Account ;
+	}
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	sprintf(line_of_file, "%s\t%s\t%d\n",pUsr_Account_Cur ->usr_name, pUsr_Account_Cur->usr_pwd, pUsr_Account_Cur->usr_role );
+	fputs(line_of_file, fp_usr_account_file);
+	free(pUsr_Account_Cur);
+
+	pUsr_Infor_Cur = pUsr_Infor_List ;
+	pUsr_Infor_Tail = pUsr_Infor_List ->pNext_Usr_Infor ;
+
+	while(pUsr_Infor_Tail)
+	{
+		memset(line_of_file, 0, MAX_FILE_LINE);
+		sprintf(line_of_file, "%d\t%s\t%d\t%f\n",pUsr_Infor_Cur->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score );
+		fputs( line_of_file,fp_usr_infor_file);
+		free(pUsr_Infor_Cur);
+
+		pUsr_Infor_Cur = pUsr_Infor_Tail ;
+		pUsr_Infor_Tail = pUsr_Infor_Tail ->pNext_Usr_Infor;
+	}}
+
+	memset(line_of_file, 0, MAX_FILE_LINE);
+	sprintf(line_of_file, "%d\t%s\t%d\t%f\n",pUsr_Infor_Cur->usr_id, pUsr_Infor_Cur->usr_name, pUsr_Infor_Cur->usr_course_id, pUsr_Infor_Cur->usr_course_score );
+	fputs(line_of_file,fp_usr_infor_file);
+	free(pUsr_Infor_Cur);
+
+	fclose(fp_config_file);
+	fclose(fp_usr_account_file);
+	fclose(fp_usr_infor_file);
+
+
+}

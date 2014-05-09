@@ -1,0 +1,13 @@
+#!/bin/sh
+echo "morning yes? or no?"
+read timeofday
+if [ "$timeofday" = "yes" ]
+then
+	echo "good morning"
+elif [ "$timeofday" = "no" ]; then
+	echo "good evening"
+else
+	echo "you are SB!"
+	exit 1
+fi
+exit

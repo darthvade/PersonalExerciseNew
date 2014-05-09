@@ -1,0 +1,99 @@
+/**
+* 424 - Integer Inquiry (WA)
+*/
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+#define MAXLEN 110
+
+char augend[MAXLEN];/*被加数*/
+char addend[MAXLEN];/*加数*/
+char result[MAXLEN];/*结果*/
+
+void addBignum(char *Aug, char *Add, char *resu);/*计算两个大整数相加,结果返回resu*/
+
+int main() {
+	/*	
+	char *a = "18";
+	char *b = "18";
+	addBignum(a, b, result);
+	printf("%s\n", result);
+	*/
+	
+	#ifdef KEVIN
+		freopen("input", "r", stdin);
+		freopen("output", "w", stdout);
+	#endif
+	scanf("%s", augend);
+	while(scanf("%s", addend) != EOF) {
+		if(!strcmp(addend, "0")) {
+			break;
+		}
+		addBignum(augend, addend, result);
+		strcpy(augend, result);
+	}
+	printf("%s", result);
+	
+	return 0;
+}
+
+void addBignum(char *Aug, char *Add, char *resu) {
+	int lanAug = strlen(Aug);
+	int lanAdd = strlen(Add);
+	int i = 0;
+	int j = 0;
+	int r = (lanAug > lanAdd ? lanAug : lanAdd);
+	int ntemp = 0;
+	int nAug = 0;
+	int nAdd = 0;
+	int carry = 0;
+	for(i = lanAug - 1, j = lanAdd - 1; i != -1 && j != -1; i--, j--, r--) {
+		nAug = Aug[i] - '0';
+		nAdd = Add[j] - '0';
+		ntemp = nAug + nAdd + carry;
+		if(ntemp >= 10) {
+			carry = ntemp / 10;
+			ntemp = ntemp % 10;			
+		} else {
+			carry = 0;
+		}
+		resu[r] = '0' + ntemp;
+	}
+	while(i != -1) {
+		nAug = Aug[i] - '0';
+		ntemp = nAug + carry;
+		if(ntemp >= 10) {
+			carry = ntemp / 10;
+			ntemp = ntemp % 10;
+		} else {
+			carry = 0;
+		}
+		resu[r] = '0' + ntemp;
+		i--;
+		r--;
+	}
+	while(j != -1) {
+		nAdd = Add[j] - '0';
+		ntemp = nAdd + carry;
+		if(ntemp >= 10) {
+			carry = ntemp / 10;
+			ntemp = ntemp % 10;
+		} else {
+			carry = 0;
+		}
+		resu[r] = '0' + ntemp;
+		j--;
+		r--;
+	}
+	if(carry > 0) {
+		resu[r] = '0' + carry;
+	} else {
+		resu[r] = ' ';
+		int s = 0;
+       	while(s != (strlen(resu) - 1)) {
+        	resu[s] = resu[s + 1];
+            s++;
+        }	
+        resu[s] = '\0';
+	}
+}
