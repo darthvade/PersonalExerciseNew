@@ -1,4 +1,5 @@
 #include <iostream>
+#include <pthread.h>
 #include "Checker.h"
 #include <string>
 #include "CheckerCache.h"
@@ -6,13 +7,30 @@
 #include <clocale>
 #include <unistd.h>
 #include "WstringConvertString.hpp"
+#include "CacheManager.h"
 
 using namespace std;
+
+void *syn(void *cm) {
+	while(true) {
+		CacheManager *p = static_cast<CacheManager*> (cm);
+		p->syncFromRamCache("./DiskCache");
+	}
+	pthread_exit(0);
+}
 
 int main() {
 	setlocale(LC_CTYPE, "");
 	string file("/home/kevin/MyProjects/SpellChecker/data/segresult.txt");
-	CheckerCache cache;
+	/*磁盘Cache和RamCache初始化*/
+	string cycle("1");
+	CacheManager cacheMag("./DiskCache", cycle);
+	CheckerCache cache(&cacheMag); //初始化过程中完成与DiskCache的同步
+
+	/*开启新线程执行CacheManager的磁盘同步*/
+	pthread_t sync;
+	pthread_create(&sync, NULL, syn, (void *)&cacheMag);
+
 	wcout << L"开始初始化" << endl;
 	clock_t init = clock();
 	Checker checker(file);

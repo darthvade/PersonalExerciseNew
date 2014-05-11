@@ -4,7 +4,8 @@
 CheckerCache::CheckerCache(CacheManager *pDiskCache) :
 _cache_map(),
 _pDiscCache(pDiskCache) {
-
+	_pDiscCache->_vecpRamCache.push_back(this); //向CacheManager注册自己
+	syncFromDiskCache();
 }
 
 CheckerCache::~CheckerCache() {
@@ -26,5 +27,9 @@ void CheckerCache::addresult(std::string target, std::string result) {
 
 void CheckerCache::syncFromDiskCache() {
 	_cache_map.clear();
-	_pDiscCache
+	Iter iter = _pDiscCache->_disk_cache_map.begin();
+	while(iter != _pDiscCache->_disk_cache_map.end()) {
+		_cache_map.insert(*iter);	
+		++iter;	
+	}
 }
