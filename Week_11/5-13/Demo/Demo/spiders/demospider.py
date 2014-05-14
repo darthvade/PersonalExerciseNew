@@ -3,26 +3,25 @@ from scrapy.http import HtmlResponse
 
 class DemoSpider(Spider):
 	name = 'demospider'
-	start_urls = ['http://www.sina.com.cn']
+	start_urls = 'http://www.sina.com.cn'
 
-	def parse(self, response):
-		filename = response.url.split('/')[-1]
-		f = open(filename, 'wb')
+	html = HtmlResponse(start_urls)
 
-		html = HtmlRespnse(response)
+	filename = html.url.split('/')[-1]
+	f = open(filename, 'wb')
 
-		f.write(html.url)
+	f.write(html.url)
+	f.write('\n')
+	f.write('\n')
+
+	for k in html.headers:
+		f.write(k)
+		f.write(' : ')
+		f.write(html.headers[k])
 		f.write('\n')
-		f.write('\n')
+	f.write('\n')
 
-		for k in html.headers:
-			f.write(k)
-			f.write(' : ')
-			f.write(html.headers[k])
-			f.write('\n')
-		f.write('\n')
+	f.write(html.body)
+	f.write('\n')
 
-		f.write(html.body)
-		f.write('\n')
-
-		f.close()
+	f.close()
