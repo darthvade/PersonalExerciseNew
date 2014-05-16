@@ -1,0 +1,30 @@
+#include </home/kevin/BuildMuduo/build/release-install/include/muduo/net/EventLoop.h>
+#include </home/kevin/BuildMuduo/build/release-install/include/muduo/net/TcpServer.h>
+#include </home/kevin/BuildMuduo/build/release-install/include/muduo/net/InetAddress.h>
+
+#include <string>
+#include <iostream>
+#include <functional>
+
+using namespace muduo;
+using namespace muduo::net;
+
+void onConnection(const TcpConnectionPtr& conn);
+
+int main() {
+	int maindata = 10000;
+	EventLoop loop;
+	TcpServer server(&loop, InetAddress(8800), "Muduo");
+	server.setConnectionCallback(onConnection);
+	server.start();
+	loop.loop();
+	return 0;
+}
+
+void onConnection(const TcpConnectionPtr& conn) {
+	if(conn->connected()) {
+		std::cout << main::maindata << std::endl;
+		conn->shutdown();
+	}
+}
+
