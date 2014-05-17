@@ -2,6 +2,8 @@
 from scrapy.selector import Selector
 from scrapy.spider import Spider
 from scrapy.http import Request
+from goose import Goose
+from goose.text import StopWordsChinese
 
 class DmozSpider(Spider):
 	name = 'dmozspider'
@@ -61,14 +63,19 @@ class DmozSpider(Spider):
 			f.write(t.encode("UTF-8"))
 			f.write('\n')
 		f.write('\n')
-			#写入网页内容
-		content = sel.xpath('//p/text()|//a/text()').extract()
+			#写入网页内容(使用Goose包)
+		g = Goose({'stopwords_class': StopWordsChinese})
+		article = g.extract(response.url)
 		f.write('Content:')
-		for c in content:
-			if len(c) > 0:
-				f.write(c.encode("UTF-8"))
-				f.write('\n')
-		f.write('\n')
+		f.write(article.cleaned_text.encode("UTF-8"))
+		f.write('\n\n')
+		#content = sel.xpath('//p/text()|//a/text()').extract()
+		#f.write('Content:')
+		#for c in content:
+		#	if len(c) > 0:
+		#		f.write(c.encode("UTF-8"))
+		#		f.write('\n')
+		#f.write('\n')
 
 		#关闭网页文件
 		f.close()
