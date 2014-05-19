@@ -127,11 +127,17 @@ void statistic_block (int blockWidth)
 {
 	blocks.clear();
 
-	for(int i=0; i < lines.size() - blockWidth; i++)
+	//lines.size() 小于blockwidth时会有严重BUG！！！
+	//if语句快修复此BUG
+	if (lines.size() < (unsigned int)blockWidth) {
+		lines.resize(blockWidth);
+	}
+	for(unsigned int i=0; i != lines.size() - blockWidth; i++)
 	{
 		int block_len = 0;
-		for (int j=0; j < blockWidth; j++)
-			block_len += lines[i+j].length();
+		for (int j=0; j < blockWidth; j++) {
+			block_len += lines[i+j].length(); //这里有BUG！！！！！！！！！！！
+		}
 		blocks.push_back(block_len);
 	}
 	/*
@@ -144,7 +150,7 @@ void statistic_block (int blockWidth)
 
 int findSurge (int start, int threshold)
 {
-	for(int i = start; i < blocks.size(); i++)
+	for(unsigned int i = start; i != blocks.size(); i++)
 	{
 		if ( blocks[i] > threshold 
 			&& blocks[i+1] > 0			//紧随骤升点的行块长度不能为0
@@ -157,7 +163,7 @@ int findSurge (int start, int threshold)
 
 int findDive (int surgePoint)
 {
-	for (int i = surgePoint + 1; i < blocks.size(); i++)
+	for (unsigned int i = surgePoint + 1; i != blocks.size(); i++)
 	{
 		if (blocks[i] == 0 && blocks[i+1] == 0)
 			return i;
