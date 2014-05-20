@@ -101,7 +101,7 @@ int main() {
 		pagelib.read(buf, length);
 
 		string result(buf);
-		result = parseString(result, 127);//抽取正文 最后一个参数为抽取阈值，越大抽取越严格！
+		result = parseString(result, 20);//抽取正文 最后一个参数为抽取阈值，越大抽取越严格！
 		if(result.empty()) {
 			continue;
 		}
