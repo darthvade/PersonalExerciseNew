@@ -9,6 +9,7 @@
 #include <utility>
 #include <queue>
 #include <set>
+#include <cmath>
 
 class Compare {
 public:
@@ -44,6 +45,11 @@ std::vector<std::string> getTopNwords(std::string &str, int n) {
 }
 
 bool isSimilar(std::string &stra, std::string &strb) {
+	//总的长度相差太大很有可能不相似
+	int dislen = abs(stra.length() - strb.length());	
+	if(dislen > 128) {
+		return false;
+	}
 	typedef std::vector<std::string>::iterator Iter;
 	//注：topa和topb的长度未必都是10
 	std::vector<std::string> topa = getTopNwords(stra, 10);
