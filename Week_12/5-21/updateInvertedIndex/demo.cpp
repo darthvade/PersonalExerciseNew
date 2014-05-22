@@ -49,9 +49,9 @@ int main() {
 		SetIter setiter = invertedindexiter->second.begin();
 		while(setiter != invertedindexiter->second.end()) {
 			//计算TF * IDF
-			double weight = setiter->second * (log10(uniquedocid.size() / invertedindexiter->second.size()));
+			double weight = setiter->second * (0.05 + log10(uniquedocid.size() / invertedindexiter->second.size()));
 			termInfo insertterminfo;
-			insertterminfo.weight = weight;
+			insertterminfo.weight = weight * weight;
 			insertterminfo.docid = setiter->first;
 			insertterminfo.tf = setiter->second;
 			allweigth += weight;
@@ -61,7 +61,7 @@ int main() {
 		//第二次遍历这一词项的所有全总信息，以完成权重的归一化（遍历词项在有权重倒排列表中的对应信息即可）
 		vector<termInfo>::iterator setinfoiter = invertedindexwithweigth[invertedindexiter->first].begin();
 		while(setinfoiter != invertedindexwithweigth[invertedindexiter->first].end()) {
-			setinfoiter->weight /= allweigth;	
+			setinfoiter->weight /= sqrt(allweigth);	
 			++setinfoiter;
 		}
 
@@ -78,7 +78,8 @@ int main() {
 		Winvertedindexfile << mapiter->first << "\t";	
 		SetIter setiter = mapiter->second.begin();
 		while(setiter != mapiter->second.end()) {
-			Winvertedindexfile << setiter->docid << "\t" << setiter->tf << "\t" << setiter->weight << '\t'; 	
+			//Winvertedindexfile << setiter->docid << "\t" << setiter->tf << "\t" << setiter->weight << '\t'; 	
+			Winvertedindexfile << setiter->docid << "\t" << setiter->weight << '\t'; 	
 			++setiter;
 		}
 		Winvertedindexfile << endl;
