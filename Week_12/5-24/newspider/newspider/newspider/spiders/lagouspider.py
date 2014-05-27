@@ -5,12 +5,12 @@ from scrapy.spider import Spider
 from scrapy.http import Request
 from newspider.items import NewspiderItem
 
-jobid = 0
+jobid = 11914
 
 class NewSpider(Spider):
 	name = 'newspider'
 	allowed_domains = ['lagou.com']
-	start_urls = ['http://www.lagou.com/jobs/1.html']
+	start_urls = ['http://www.lagou.com/jobs/11915.html']
 
 	def parse(self, response):
 		sel = Selector(response)
@@ -21,6 +21,7 @@ class NewSpider(Spider):
 		#爬取信息保存单元
 		item = NewspiderItem()
 		item['jobid'] = jobid #保存jobID（全局唯一）
+		item['online'] = sel.xpath('//a[@class=\'inline btn fr btn_apply\']/text() | //a[@class=\'btn fr btn_sended\']/text()').extract() #是否在线
 		item['company'] = sel.xpath('//h2[@class=\'fl\']/text()').extract() #保存招聘公司
 		item['title'] = sel.xpath('//h1/@title').extract() #保存职位名称
 		item['salary'] = sel.xpath('//dd[@class=\'job_request\']/span[1]/text()').extract() #保存职位薪水

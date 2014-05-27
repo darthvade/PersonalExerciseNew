@@ -39,6 +39,10 @@ class NewspiderPipeline(object):
 			#数据库（MySql存储）
 			values = []
 			values.append(str(item['jobid']))
+			if item['online'][0] == u'已下线':
+				values.append(False)
+			elif item['online'][0] == u'投个简历':
+				values.append(True)
 			values.append(item['company'][0].encode('utf-8').strip())
 			values.append(item['title'][0].encode('utf-8'))
 			values.append(item['salary'][0].encode('utf-8'))
@@ -50,7 +54,7 @@ class NewspiderPipeline(object):
 			values.append(item['repo_time'][0].encode('utf-8').strip().decode('utf-8')[5:].encode('utf-8'))
 			values.append(item['description'][0].encode('utf-8').strip())
 			values.append(item['page_url'])
-			self.cur.execute('insert into RawTable values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', values)
+			self.cur.execute('insert into RawTable values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', values)
 			self.conn.commit()
 
 		return item

@@ -14,5 +14,12 @@ ITEM_PIPELINES = {
 	'newspider.pipelines.NewspiderPipeline': 1				
 }
 
+COOKIES_ENABLED = False
+
+DOWNLOADER_MIDDLEWARES = {
+	'scrapy.contrib.downloadermiddleware.httpproxy.HttpProxyMiddleware':110,
+	'newspider.ProxyMiddlewares.ProxyMiddleware':100,
+}
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'newspider (+http://www.yourdomain.com)'

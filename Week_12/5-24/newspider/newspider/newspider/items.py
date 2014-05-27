@@ -12,6 +12,7 @@ class NewspiderItem(Item):
     # define the fields for your item here like:
     # name = Field()
 	jobid = Field() #jobID全局唯一
+	online =Field() #是否可投递
 	company = Field() #招聘公司
 	title = Field() #职位名称
 	salary = Field() #职位薪水
