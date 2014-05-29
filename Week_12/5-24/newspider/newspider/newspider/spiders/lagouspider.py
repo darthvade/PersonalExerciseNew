@@ -5,12 +5,12 @@ from scrapy.spider import Spider
 from scrapy.http import Request
 from newspider.items import NewspiderItem
 
-jobid = 11914
+jobid = 31233
 
 class NewSpider(Spider):
 	name = 'newspider'
 	allowed_domains = ['lagou.com']
-	start_urls = ['http://www.lagou.com/jobs/11915.html']
+	start_urls = ['http://www.lagou.com/jobs/31234.html']
 
 	def parse(self, response):
 		sel = Selector(response)
