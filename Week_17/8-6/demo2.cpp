@@ -58,9 +58,11 @@ class NewHasPtr {
 				delete p;
 			}
 		}
+	#ifdef DEBUG
 		void print() {
 			std::cout << "Addr-> " << p << ", Value-> " << *p << ", Counter-> " << *counter << std::endl;
 		}
+	#endif
 	private:
 		std::string *p;
 		int num;
