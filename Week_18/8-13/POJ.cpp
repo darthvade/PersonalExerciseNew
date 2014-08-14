@@ -1,28 +1,26 @@
-//POJ 2718
+//POJ 1003
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream>
+#include <cstdio>
 
-using namespace std;
-
-int func(vector<int> &input) {
-
+int func(double input) {
+	int counter = 1;
+	double temp = 0.0;
+	while(1) {
+		if(temp > input) {
+  			return counter - 1;
+		}
+		temp += 1.0 / (counter + 1);
+		counter++;
+	}
 }
 
 int main() {
-	int n;
-	while(cin >> n) {
-		vector<int> input;
-		string temp;
-		getline(cin, temp);
-		stringstream ins(temp);
-		int itemp;
-		while(ins >> itemp) {
-			input.push_back(itemp);		
+	double input;
+	while(scanf("%lf", &input) != EOF) {
+		if(input == 0.0) {
+			break;
 		}
-
+		printf("%d card(s)\n", func(input));
 	}
 	return 0;
 }
