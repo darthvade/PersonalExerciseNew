@@ -1,0 +1,149 @@
+郑鹏程-1400022724
+
+1.1/1.2
+int main() {
+	return 0;
+	// return -1;
+}
+
+1.3
+int main() {
+	std::cout << "hello, world!" << std::endl;
+	return 0;
+}
+
+1.4
+int main() {
+	int a;
+	int b;
+	std::cin >> a;
+	std::cin >> b;
+	std::cout <<  a << "times" << "b is " << a * b << std::endl;
+	return 0;
+}
+
+1.5
+int main() {
+	int a;
+	int b;
+	std::cin >> a;
+	std::cin >> b;
+	std::cout << a;
+	std::cout << "times";
+	std::cout << "b is ";
+	std::cout << a * b;
+	std::cout << std::endl;
+	return 0;
+}
+
+1.6
+不合法。
+修正如下：
+std::cout << "The sum of " << v1;
+std::cout << "and " << v2;
+std::cout << " is " << v1 + v2 << std::endl;
+
+1.7
+
+1.8
+第1，2，4行合法
+
+1.9
+int main() {
+	int counter = 0;
+	int i = 50;
+	while(i <= 100) {
+		counter += i;
+		++i;
+	}
+	return 0;
+}
+
+1.10
+#include <iostream>
+int main() {
+	int counter = 10;
+	while(counter--) {
+		std::cout << counter << std::endl;
+	}
+	return 0;
+}
+
+1.11
+#include <iostream>
+using namespace std;
+int main() {
+	int a;
+	int b;
+	cin >> a >> b;
+	if(a < b) {
+		print(a, b);
+	} else {
+		print(b, a);
+	}
+	return 0;
+}
+void print(int &a, int &b) {
+	while(a <= b) {
+		cout << a++ << endl;
+	}
+} 
+
+1.12
+从-100累加到100，步长为1
+sum值为0
+
+1.13
+
+1.14
+for循环结构清晰可读性好，适合条件固定的程序
+while循环灵活度高，适合条件不确定的程序
+
+1.16
+#include <iostream>
+using namespace std;
+int main() {
+	int input;
+	int sum = 0;
+	int counter = 0;
+	while(cin >> input) {
+		sum += input;
+		counter++;
+	}
+	cout << sum / counter << endl;
+	return 0;
+}
+
+1.17
+只输出一行
+输出N行
+
+1.19
+已经考虑过了
+
+1.21
+#include "Sales_item.h"
+#include <iostream>
+using namespace std;
+int main() {
+	Sales_item a;
+	Sales_item b;
+	cin >> a >> b;
+	cout << a + b << endl;	
+	return 0;
+}
+
+1.22
+#include "Sales_item.h"
+#include <iostream>
+using namespace std;
+int main() {
+	Sales_item a;
+	Sales_item sum;
+	while(cin >> a) {
+		sum += a;
+	}
+	cout << sum << endl;
+	return 0;
+}
+
