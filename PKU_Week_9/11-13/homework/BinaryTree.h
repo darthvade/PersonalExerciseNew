@@ -92,8 +92,8 @@ private:
 				//取得当前操作符
 				std::string is;
 				is.push_back(postfixq.front());
-				//
 				std::string insert = "(" + left + is + right + ")";
+				//std::string insert = left + is + right;
 				resultstack.push(insert);
 				preoperator = postfixq.front();
 				postfixq.pop();
@@ -110,6 +110,45 @@ private:
 		} else {
 			return;
 		}	
+	}
+	//判断是否是最下层操作符
+	bool isLowestOper(BinaryTreeNode<T> *&root) {
+		if(	root->lchild->data != '+' && 
+			root->lchild->data != '-' &&
+		 	root->lchild->data != '*' &&
+		 	root->lchild->data != '/' &&
+			root->rchild->data != '+' && 
+			root->rchild->data != '-' &&
+		 	root->rchild->data != '*' &&
+		 	root->rchild->data != '/' ) {
+			return true;	
+		} else {
+			return false;
+		}
+	}
+	//取得子树运算符
+	char getLowerOper(BinaryTreeNode<T> *&root) {
+		if(	root->lchild->data == '+' ||
+			root->lchild->data == '-' ||
+		 	root->lchild->data == '*' ||
+		 	root->lchild->data == '/') {
+			return root->lchild->data;	
+		} 
+		if(	root->rchild->data == '+' ||
+			root->rchild->data == '-' ||
+		 	root->rchild->data == '*' ||
+		 	root->rchild->data == '/') {
+			return root->rchild->data;	
+		}
+		return 0;
+	}
+	//取得运算符优先级
+	unsigned int getOperPriority(char oper) {
+		if(oper == '*' || oper == '/') {
+			return 2;
+		} else {
+			return 1;
+		}
 	}
 	//先根遍历打印
 	void Preorder(BinaryTreeNode<T> *&root) {

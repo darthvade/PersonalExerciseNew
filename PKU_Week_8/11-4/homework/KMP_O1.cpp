@@ -58,7 +58,7 @@ int *next(const string &pattern) {
  *
  */
 int KMP_O1(const string &source, const string &pattern) {
-	if(source.size() < pattern.size()) {
+	if(source.size() < pattern.size() || pattern.size() == 0) {
 		return -1;
 	}
 	int *nextv = next(pattern);
@@ -80,7 +80,7 @@ int KMP_O1(const string &source, const string &pattern) {
 }
 
 int main() {
-	string src("aaaaaabbbbbcdef");
+	string src("aaaaaaaaabbbcdef");
 	string pat("aaabbb");
 	cout << KMP_O1(src, pat) << endl;
 	return 0;

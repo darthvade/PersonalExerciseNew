@@ -51,6 +51,7 @@ private:
 	//计算叶子结点数及叶结点数据和
 	void TraverseCountLeaves(BSTreeNode<T> *&root) {
 		if(nullptr != root) {
+			//二叉树叶子结点性质：既无左孩子也无右孩子。
 			if((nullptr == root->lchild) && (nullptr == root->rchild)) {
 				_numleaves++;
 				_sumvalueleaves += root->data;
