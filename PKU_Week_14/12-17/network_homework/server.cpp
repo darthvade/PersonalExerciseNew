@@ -3,11 +3,17 @@
 #include <netinet/in.h> //struct sockaddr_in
 #include <string.h> //bzero
 #include <unistd.h> //read & write
+#include <sys/wait.h> //waitpid
 #include <iostream>
 #include <string>
 #include <cstdio>
 
 using namespace std;
+
+void signal_handler(int sig) {
+	while(waitpid(-1, 0, WNOHANG) > 0) {}
+	return;
+}
 
 ssize_t readn(int fd, void *vptr, size_t n) {
 	size_t nleft = n;
@@ -44,18 +50,29 @@ int main(int argc, char* argv[]) {
 
 	bind(fd, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr));
 	
+	signal(SIGCHLD, signal_handler);
+
 	listen(fd, 20);
 
-	int acfd = accept(fd, nullptr, nullptr);
+	int acfd = 0;
+	while(1) {
+		acfd = accept(fd, nullptr, nullptr);
 
-	char buffer[6553600] = {0};
-	int getn = readn(acfd, buffer, sizeof(buffer));
-	printf("getn=%d\n", getn);	
-	printf("%s\n", buffer);
-	string s(buffer);	
-	cout << "RECEIVED MSG: " << s << endl;
-	cout << "RECEIVED MSG LEN: " << s.length() << endl;
+		if(fork() == 0) {	
+			close(fd);
+			char buffer[1024] = {0};
+			int getn = readn(acfd, buffer, sizeof(buffer));
+			printf("getn=%d\n", getn);	
+			printf("%s\n", buffer);
+			string s(buffer);	
+			cout << "RECEIVED MSG: " << s << endl;
+			cout << "RECEIVED MSG LEN: " << s.length() << endl;
+			close(acfd);
+			exit(0);
+		}
+		
+		close(acfd);	
+	}
 
-	close(fd);
 	return 0;
 }
