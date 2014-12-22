@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	connect(fd, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr));
 
 	char buffer[1024] = {0};
-	sleep(10);//debug
+	//sleep(10);//debug
 	scanf("%s", buffer);
 	cout << strlen(buffer) << endl;
 	write(fd, buffer, strlen(buffer) + 1);	
